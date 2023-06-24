@@ -26,7 +26,8 @@ def check(url):
     return None
 
 
-def run(work_dir):
+def run(work_dir, disable_relative_link = False, enable_external_link = False,
+        enable_internal_link = False, base_url = ""):
     error_count = 0
     for path, dirs, filenames in os.walk(work_dir):
         for filename in [i for i in filenames if i.endswith('.md')]:
@@ -48,13 +49,18 @@ def run(work_dir):
 
                     error = None
                     if url.startswith('http://') or url.startswith('https://'):
-                        # todo
-                        #error = check(url)
-                        pass
+                        if enable_external_link:
+                            error = check(url)
+                            pass
                     elif url.startswith('/'):
-                        # todo
-                        pass
+                        if enable_internal_link:
+                            url = base_url + url
+                            error = check(url)
+                            pass
                     else:
+                        if disable_relative_link:
+                            continue
+                        
                         url = url.split('#')[0]
                         url = path + '/' + url
                         if os.path.exists(url) == False:
@@ -84,6 +90,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     work_dir = sys.argv[1]
+    internal_links = [] # /a/b/c
+    external_links = []
+    relative_links = []
 
     if run(work_dir) != 0:
         sys.exit(1)
