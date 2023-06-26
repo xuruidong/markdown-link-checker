@@ -5,6 +5,7 @@ import os
 import sys
 import re
 import urllib.request
+import argparse
 
 
 def red(s):
@@ -18,7 +19,7 @@ def green(s):
 def check(url):
     try:
         req = urllib.request.Request(url, method='HEAD', headers={'User-Agent': "link-checker"})
-        resp = urllib.request.urlopen(req, timeout=3)
+        resp = urllib.request.urlopen(req, timeout=4)
         if resp.code >= 400:
             return "Got HTTP response code {}".format(resp.code)
     except Exception as e:
@@ -26,8 +27,8 @@ def check(url):
     return None
 
 
-def run(work_dir, disable_relative_link = False, enable_external_link = False,
-        enable_internal_link = False, base_url = ""):
+def run(work_dir, disable_relative_link=False, enable_external_link=False,
+        enable_internal_link=False, base_url=""):
     error_count = 0
     for path, dirs, filenames in os.walk(work_dir):
         for filename in [i for i in filenames if i.endswith('.md')]:
@@ -38,7 +39,7 @@ def run(work_dir, disable_relative_link = False, enable_external_link = False,
                 urls += re.findall('(?:href|src)\s*=\s*"\s*([^"]+)', content)
                 for url in urls:
                     url = url.strip()
-                    
+
                     if url.startswith('#'):
                         # skip in-url reference
                         continue
@@ -56,11 +57,12 @@ def run(work_dir, disable_relative_link = False, enable_external_link = False,
                         if enable_internal_link:
                             url = base_url + url
                             error = check(url)
-                            pass
+                    elif url.startswith('mailto:'):
+                        pass
                     else:
                         if disable_relative_link:
                             continue
-                        
+
                         url = url.split('#')[0]
                         url = path + '/' + url
                         if os.path.exists(url) == False:
@@ -78,21 +80,33 @@ def run(work_dir, disable_relative_link = False, enable_external_link = False,
                     print("{} {}".format(filename, green('‎✔')))
                 else:
                     print()
-                    
+
     return error_count
 
 
-
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("usage: {} root_path\n".format(sys.argv[0]))
-        print("i.e. {} source ".format(sys.argv[0]))
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--enable-external", action='store_true',
+                        help="enable check external link")
+    parser.add_argument("--enable-internal", action='store_true',
+                        help="enable check internal link, 'base-url' is \
+                        needed.")
+    parser.add_argument("--base-url",
+                        help="for check internal link")
+    parser.add_argument("--disable-relative", action='store_true',
+                        help="disable check relative link")
+    parser.add_argument("workdir")
+    args = parser.parse_args()
+    print(args)
+    if args.enable_internal and not args.base_url:
+        print ("base-url is needed")
         sys.exit(1)
 
-    work_dir = sys.argv[1]
-    internal_links = [] # /a/b/c
+    internal_links = []  # /a/b/c
     external_links = []
     relative_links = []
 
-    if run(work_dir) != 0:
+    if run(args.workdir, args.disable_relative, args.enable_external,
+           args.enable_internal, args.base_url) != 0:
         sys.exit(1)
