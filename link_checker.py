@@ -47,9 +47,12 @@ def run(work_dir, disable_relative_link=False, enable_external_link=False,
                     if url.startswith('/') and not url.startswith('//'):
                         url = base_url + url
                     '''
+                    url = url.split('#')[0]
 
                     error = None
-                    if url.startswith('http://') or url.startswith('https://'):
+                    if url.startswith('http://127.0.0.1') or url.startswith('https://127.0.0.1') or url.startswith('http://localhost') or url.startswith('https://localhost'):
+                        continue
+                    elif url.startswith('http://') or url.startswith('https://'):
                         if enable_external_link:
                             error = check(url)
                             pass
@@ -63,7 +66,6 @@ def run(work_dir, disable_relative_link=False, enable_external_link=False,
                         if disable_relative_link:
                             continue
 
-                        url = url.split('#')[0]
                         url = path + '/' + url
                         if os.path.exists(url) == False:
                             error = " does not exist"
@@ -98,9 +100,9 @@ if __name__ == "__main__":
                         help="disable check relative link")
     parser.add_argument("workdir")
     args = parser.parse_args()
-    print(args)
+    # print(args)
     if args.enable_internal and not args.base_url:
-        print ("base-url is needed")
+        print("base-url is needed")
         sys.exit(1)
 
     internal_links = []  # /a/b/c
