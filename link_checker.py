@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 
+# https://github.com/xuruidong/markdown-link-checker
+
 import os
 import sys
 import re
@@ -16,14 +18,25 @@ def green(s):
     return '\033[32m' + s + '\033[0m'
 
 
+external_links_cache = {}
 def check(url):
+    if url in external_links_cache:
+        print("[debug] in cache")
+        return external_links_cache[url]
+    
     try:
         req = urllib.request.Request(url, method='HEAD', headers={'User-Agent': "link-checker"})
         resp = urllib.request.urlopen(req, timeout=4)
         if resp.code >= 400:
-            return "Got HTTP response code {}".format(resp.code)
+            ret = "Got HTTP response code {}".format(resp.code)
+            external_links_cache[url] = ret
+            return ret
     except Exception as e:
-        return "Got exception {}".format(e)
+        ret = "Got exception {}".format(e)
+        external_links_cache[url] = ret
+        return ret
+    
+    external_links_cache[url] = None
     return None
 
 
