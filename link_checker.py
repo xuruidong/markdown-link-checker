@@ -44,6 +44,9 @@ def check(url):
 
 def run(work_dir, disable_relative_link=False, enable_external_link=False,
         enable_internal_link=False, base_url="", ignores=[]):
+    if not ignores:
+        ignores = []
+        
     error_count = 0
     for path, dirs, filenames in os.walk(work_dir):
         for filename in [i for i in filenames if i.endswith('.md')]:
