@@ -8,6 +8,7 @@ import sys
 import re
 import urllib.request
 import argparse
+import ssl
 
 
 def red(s):
@@ -27,8 +28,9 @@ def check(url):
         return external_links_cache[url]
 
     try:
+        context = ssl._create_unverified_context()
         req = urllib.request.Request(url, method='GET', headers={'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
-        resp = urllib.request.urlopen(req, timeout=4)
+        resp = urllib.request.urlopen(req, context=context, timeout=4)
         if resp.code >= 400:
             ret = "Got HTTP response code {}".format(resp.code)
             external_links_cache[url] = ret
