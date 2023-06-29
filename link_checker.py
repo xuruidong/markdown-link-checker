@@ -27,7 +27,7 @@ def check(url):
         return external_links_cache[url]
 
     try:
-        req = urllib.request.Request(url, method='HEAD', headers={'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
+        req = urllib.request.Request(url, method='GET', headers={'User-Agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)"})
         resp = urllib.request.urlopen(req, timeout=4)
         if resp.code >= 400:
             ret = "Got HTTP response code {}".format(resp.code)
