@@ -80,9 +80,7 @@ def run(work_dir, disable_relative_link=False, enable_external_link=False,
                         continue
 
                     error = None
-                    if url.startswith('http://127.0.0.1') or url.startswith('https://127.0.0.1') or url.startswith('http://localhost') or url.startswith('https://localhost'):
-                        continue
-                    elif url.startswith('http://') or url.startswith('https://'):
+                    if url.startswith('http://') or url.startswith('https://'):
                         if enable_external_link:
                             error = check(url)
                             pass
